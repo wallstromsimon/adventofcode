@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 def walk(pos, step):
     if direction == 0:
         return pos[0], pos[1] + step

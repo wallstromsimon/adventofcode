@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 f = open("input_3")
 count = 0
 for line in f:

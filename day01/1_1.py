@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 f = open('input_1_1', 'r')
 moves = f.read().split(",")
 x = 0

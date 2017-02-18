@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 def up(d):
     if d in (1, 2, 3):
         return d
