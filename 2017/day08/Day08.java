@@ -10,14 +10,15 @@ public class Day08 {
 
     private Map<String, Integer> registers;
     private List<String> instructions;
+    private int maxValue = 0; 
 
     public Day08() {
         init();
-
         executeInstructions();
+
         System.out.println("Part one: " + registers.values().stream().mapToInt(Integer::intValue).max().getAsInt());
         
-        System.out.println("Part two: )");
+        System.out.println("Part two: " + maxValue);
     }
     
     private void init(){
@@ -56,6 +57,7 @@ public class Day08 {
             } else {
                 registerValue -= value;
             }
+            maxValue = registerValue > maxValue ? registerValue : maxValue;
             registers.put(registerToModify, registerValue);
         }
     }
