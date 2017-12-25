@@ -12,7 +12,7 @@ public class DayX {
         init();
         System.out.println("Part one: ");
         
-        System.out.println("Part two: )");
+        System.out.println("Part two: ");
     }
     
     private void init(){
