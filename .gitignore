@@ -1,3 +1,6 @@
+# vim (and other) swp file
+*.swp
+
 # Java class files 
 *.class
 
