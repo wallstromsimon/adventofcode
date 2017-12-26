@@ -10,6 +10,7 @@ public class Day09 {
     
     private String dirtyStream;
     private long score = 0;
+    private long garbageLen = 0;
 
     public Day09() {
         init();
@@ -18,7 +19,7 @@ public class Day09 {
         calculateScore();
         System.out.println("Part one: " + score);
         
-        System.out.println("Part two: ");
+        System.out.println("Part two: " + garbageLen);
     }
     
     private void init(){
@@ -34,9 +35,13 @@ public class Day09 {
         int depth = 0;
         boolean garbage = false;
         for (char ch : dirtyStream.toCharArray()) {
-            System.out.println("last: " + lastCh + " current: " + ch + " depth: " + depth + " garbage: " + garbage + " score: " + score);
+            //System.out.println("last: " + lastCh + " current: " + ch + " depth: " + depth + " garbage: " + garbage + " score: " + score);
             boolean ignore = lastCh == '!';
             lastCh = ignore ? 'a' : ch;
+            // Count garbage len, dont' count ignored or onening/closing <> nor the ignoring (!) char
+            if (!ignore && ch != '!' && garbage && ch != '>') {
+                garbageLen++;
+            }
             // if < activate garbage mode
             if (!ignore && !garbage && ch == '<') {
                 garbage = true;
