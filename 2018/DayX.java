@@ -5,7 +5,7 @@ import java.io.*;
 
 public class DayX {
     public static void main(String[] args) {
-        DayX dayX = new DayX();
+        DayX day = new DayX();
     }
 
     public DayX() {
