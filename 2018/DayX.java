@@ -16,7 +16,12 @@ public class DayX {
     }
     
     private void init(){
-        try (Stream<String> stream = Files.lines(Paths.get("input.txt"))) {
+        String path = "input.txt";
+        if (System.getProperty("user.dir").endsWith("adventofcode")) { // executed from the proj root dir
+            path = "tmp/production/adventofcode/" + this.getClass().getSimpleName().toLowerCase() + "/" + path;
+        }
+
+        try (Stream<String> stream = Files.lines(Paths.get(path))) {
             stream.forEach(System.out::println);
         } catch (IOException e) {
             e.printStackTrace();
