@@ -17,3 +17,7 @@ cp DayX.java $folder/$file.java
 
 sed -i -e 's/DayX/'$file'/g' $folder/$file.java
 
+rm -f $folder/$file.java-e
+
+git add $folder/*
+git commit -m "init "$folder
