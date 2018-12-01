@@ -3,6 +3,7 @@
 
 #intellij compiled stuff
 tmp/*
+.idea/*
 
 # Java class files 
 *.class
