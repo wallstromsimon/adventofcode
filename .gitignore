@@ -1,6 +1,9 @@
 # vim (and other) swp file
 *.swp
 
+#intellij compiled stuff
+tmp/*
+
 # Java class files 
 *.class
 
