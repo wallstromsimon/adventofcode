@@ -45,25 +45,20 @@ public class Day02 {
     private String part2(Set<String> boxIds) {
         for (String id : boxIds) {
             for (String innerId : boxIds) {
-                if (id.equals(innerId)) {
-                    continue;
-                }
-                boolean diff = false;
-                boolean diff1 = false;
                 int diffId = 0;
+                boolean diff = false;
                 for (int i = 0; i < id.length(); i++) {
                     String character = id.substring(i, i + 1);
                     String character1 = innerId.substring(i, i + 1);
                     boolean innerDiff = !character.equals(character1);
-                    if (diff && innerDiff) {
-                        diff1 = true;
+                    if (diffId > 0 && innerDiff) {
+                        diff = true;
                         break;
                     } else if (innerDiff) {
-                        diff = true;
                         diffId = i;
                     }
                 }
-                if (diff && !diff1) {
+                if (diffId > 0 && !diff) {
                     StringBuilder sb = new StringBuilder(id);
                     sb.deleteCharAt(diffId);
                     return sb.toString();
