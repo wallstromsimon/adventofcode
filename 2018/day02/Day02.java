@@ -20,9 +20,8 @@ public class Day02 {
     }
 
     private String part1(Set<String> boxIds) {
-        Map<Integer, Integer> check = new HashMap<>();
-        check.put(2, 0);
-        check.put(3, 0);
+        int nbr2s = 0;
+        int nbr3s = 0;
 
         for (String id : boxIds) {
             Map<String, Integer> counts = new HashMap<>();
@@ -32,14 +31,14 @@ public class Day02 {
                 counts.put(character, count);
             }
             if (counts.containsValue(2)) {
-                check.put(2, check.get(2) + 1);
+                nbr2s++;
             }
             if (counts.containsValue(3)) {
-                check.put(3, check.get(3) + 1);
+                nbr3s++;
             }
         }
 
-        return "" + check.get(2) * check.get(3);
+        return "" + nbr2s * nbr3s;
     }
 
     private String part2(Set<String> boxIds) {
