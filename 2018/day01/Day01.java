@@ -17,15 +17,14 @@ public class Day01 {
         List<Integer> frequencyChanges = init();
         System.out.println("Part one: " + frequencyChanges.stream().mapToInt(Integer::intValue).sum());
 
-        boolean found2ndOccurrence = false;
         Set<Integer> frequencies = new HashSet<>();
         int sum = 0;
-        for (int i = 0; !found2ndOccurrence; i = (i+1)%frequencyChanges.size()) {
+        for (int i = 0;; i = (i+1) % frequencyChanges.size()) {
             Integer freq = frequencyChanges.get(i);
             sum += freq;
             if (frequencies.contains(sum)) {
                System.out.println("Part two: " + sum);
-               found2ndOccurrence = true;
+               break;
             } else {
                 frequencies.add(sum);
             }

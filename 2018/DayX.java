@@ -9,13 +9,20 @@ public class DayX {
     }
 
     public DayX() {
-        init();
-        System.out.println("Part one: ");
-        
-        System.out.println("Part two: ");
+        var input = init();
+        System.out.println("Part one: " + part1(input));
+        System.out.println("Part two: " + part2(input));
     }
-    
-    private void init(){
+
+    private String part1(List<String> input) {
+        return "part1";
+    }
+
+    private String part2(List<String> input) {
+        return "part1";
+    }
+
+    private List<String> init(){
         String path = "input.txt";
         if (System.getProperty("user.dir").endsWith("adventofcode")) { // executed from the proj root dir
             path = "tmp/production/adventofcode/" + this.getClass().getSimpleName().toLowerCase() + "/" + path;
@@ -26,5 +33,6 @@ public class DayX {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return Collections.emptyList();
     }
 }

@@ -1,9 +1,6 @@
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,28 +17,27 @@ public class Day04 {
 
     public Day04() {
         List<String> log = init();
-        //log.forEach(System.out::println);
         System.out.println("Part one: " + part1(log)); // 20859
 
         System.out.println("Part two: " + part2(log)); // 76576
     }
 
-    private String part1(List<String> log) {
-        Map<Integer, Sleep> sleep2 = getIntegerSleepMap(log);
-        int sleepyId2 = Collections.max(sleep2.entrySet(), Comparator.comparingInt(entry -> entry.getValue().dur)).getKey();
-        int mostMin = getMostSleptMin(sleep2, sleepyId2);
-        return "" + sleepyId2 * mostMin;
+    private int part1(List<String> log) {
+        Map<Integer, Sleep> sleep = getIntegerSleepMap(log);
+        int sleepyId = Collections.max(sleep.entrySet(), Comparator.comparingInt(entry -> entry.getValue().dur)).getKey();
+        int mostMin = getMostSleptMin(sleep, sleepyId);
+        return sleepyId * mostMin;
     }
 
-    private String part2(List<String> log) {
-        Map<Integer, Sleep> sleep2 = getIntegerSleepMap(log);
-        int sleepyId2 = Collections.max(sleep2.entrySet(), Comparator.comparingInt(entry -> IntStream.of(entry.getValue().minutes).max().getAsInt())).getKey();
-        int mostMin = getMostSleptMin(sleep2, sleepyId2);
-        return "" + sleepyId2 * mostMin;
+    private int part2(List<String> log) {
+        Map<Integer, Sleep> sleep = getIntegerSleepMap(log);
+        int sleepyId = Collections.max(sleep.entrySet(), Comparator.comparingInt(entry -> IntStream.of(entry.getValue().minutes).max().getAsInt())).getKey();
+        int mostMin = getMostSleptMin(sleep, sleepyId);
+        return sleepyId * mostMin;
     }
 
     private Map<Integer, Sleep> getIntegerSleepMap(List<String> log) {
-        Map<Integer, Sleep> sleep2 = new HashMap<>();
+        Map<Integer, Sleep> sleep = new HashMap<>();
         int currentGuardID = 0;
         int asleepMin = -1;
         for (String l : log) {
@@ -55,11 +51,11 @@ public class Day04 {
                     asleepMin = min;
                 } else {
                     Sleep tmpSleep;
-                    if (sleep2.get(currentGuardID) == null) {
+                    if (sleep.get(currentGuardID) == null) {
                         tmpSleep = new Sleep();
                         tmpSleep.minutes = new int[60];
                     } else {
-                        tmpSleep = sleep2.get(currentGuardID);
+                        tmpSleep = sleep.get(currentGuardID);
                     }
 
                     int slept = min - asleepMin;
@@ -69,19 +65,19 @@ public class Day04 {
                         tmpSleep.minutes[i]++;
                     }
 
-                    sleep2.put(currentGuardID, tmpSleep);
+                    sleep.put(currentGuardID, tmpSleep);
                     asleepMin = -1;
                 }
             }
         }
-        return sleep2;
+        return sleep;
     }
 
-    private int getMostSleptMin(Map<Integer, Sleep> sleep2, int sleepyId2) {
-        int mostSleep = IntStream.of(sleep2.get(sleepyId2).minutes).max().getAsInt();
+    private int getMostSleptMin(Map<Integer, Sleep> sleep, int sleepyId) {
+        int mostSleep = IntStream.of(sleep.get(sleepyId).minutes).max().getAsInt();
 
         for (int i = 0; i < 60; i++) {
-            if (sleep2.get(sleepyId2).minutes[i] == mostSleep) {
+            if (sleep.get(sleepyId).minutes[i] == mostSleep) {
                 return i;
             }
         }
@@ -99,7 +95,7 @@ public class Day04 {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return Collections.emptyList();
     }
 
