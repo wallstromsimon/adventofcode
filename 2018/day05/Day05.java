@@ -20,20 +20,15 @@ public class Day05 {
     }
 
     private int reactPoly(String input) {
-        boolean changed = true;
         StringBuilder stringBuilder = new StringBuilder(input);
-        while (changed) {
-            changed = false;
 
-            for (int i = 1; i < stringBuilder.length() - 1; i++) {
-                char c = stringBuilder.charAt(i - 1);
-                char c1 = stringBuilder.charAt(i);
+        for (int i = 1; i < stringBuilder.length() - 1; i++) {
+            char c = stringBuilder.charAt(i - 1);
+            char c1 = stringBuilder.charAt(i);
 
-                if (Math.abs((int) c - (int) c1) == 32) {
-                    stringBuilder.delete(i - 1, i + 1); // inclusive, not inclusive
-                    changed = true;
-                    break;
-                }
+            if (Math.abs((int) c - (int) c1) == 32) {
+                stringBuilder.delete(i - 1, i + 1); // inclusive, not inclusive
+                i = i - 2 >= 0 ? i - 2 : 0; // so basically a stack?
             }
         }
         return stringBuilder.length();
