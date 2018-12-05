@@ -10,8 +10,12 @@ public class DayX {
 
     public DayX() {
         var input = init();
+        long start = System.currentTimeMillis();
         System.out.println("Part one: " + part1(input));
+        long one = System.currentTimeMillis();
         System.out.println("Part two: " + part2(input));
+        long two = System.currentTimeMillis();
+        System.out.println("one: " + (one - start) + "ms two: " + (two - one) + "ms");
     }
 
     private String part1(List<String> input) {

@@ -12,8 +12,12 @@ public class Day05 {
 
     public Day05() {
         var input = init();
+        long start = System.currentTimeMillis();
         System.out.println("Part one: " + part1(input));
+        long one = System.currentTimeMillis();
         System.out.println("Part two: " + part2(input));
+        long two = System.currentTimeMillis();
+        System.out.println("one: " + (one - start) + "ms two: " + (two - one) + "ms");
     }
 
     private int part1(String input) {
