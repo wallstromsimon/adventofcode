@@ -49,10 +49,10 @@ public class Day05 {
         }
 
         try (Stream<String> stream = Files.lines(Paths.get(path))) {
-            return stream.findFirst().get();// .forEach(System.out::println);
+            return stream.findFirst().get();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null; //Collections.emptyList();
+        return null;
     }
 }
