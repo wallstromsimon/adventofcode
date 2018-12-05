@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 cd ~/git/adventofcode/2018/
 
 if [ -n "$1" ] ; then

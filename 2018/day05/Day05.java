@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -20,18 +21,16 @@ public class Day05 {
     }
 
     private int reactPoly(String input) {
-        StringBuilder stringBuilder = new StringBuilder(input);
-
-        for (int i = 1; i < stringBuilder.length() - 1; i++) {
-            char c = stringBuilder.charAt(i - 1);
-            char c1 = stringBuilder.charAt(i);
-
-            if (Math.abs((int) c - (int) c1) == 32) {
-                stringBuilder.delete(i - 1, i + 1); // inclusive, not inclusive
-                i = i - 2 >= 0 ? i - 2 : 0; // so basically a stack?
+        LinkedList<String> stack = new LinkedList<>();
+        for (String s : input.split("")) {
+            if (s.equalsIgnoreCase(stack.peek()) && !s.equals(stack.peek())) { // (Math.abs((int) c - (int) c1) == 32)
+                stack.pop();
+            } else {
+                stack.push(s);
             }
         }
-        return stringBuilder.length();
+
+        return stack.size();
     }
 
     private int part2(String input) {
