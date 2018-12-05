@@ -1,7 +1,8 @@
-import java.util.*;
-import java.util.stream.*;
-import java.nio.file.*;
-import java.io.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Day05 {
     public static void main(String[] args) {
@@ -14,25 +15,49 @@ public class Day05 {
         System.out.println("Part two: " + part2(input));
     }
 
-    private String part1(List<String> input) {
-        return "part1";
+    private int part1(String input) {
+        return reactPoly(input);
     }
 
-    private String part2(List<String> input) {
-        return "part1";
+    private int reactPoly(String input) {
+        boolean changed = true;
+        StringBuilder stringBuilder = new StringBuilder(input);
+        while (changed) {
+            changed = false;
+
+            for (int i = 1; i < stringBuilder.length() - 1; i++) {
+                char c = stringBuilder.charAt(i - 1);
+                char c1 = stringBuilder.charAt(i);
+
+                if (Math.abs((int) c - (int) c1) == 32) {
+                    stringBuilder.delete(i - 1, i + 1); // inclusive, not inclusive
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        return stringBuilder.length();
     }
 
-    private List<String> init(){
+    private int part2(String input) {
+        return IntStream.range(1, 26).map(i -> removeAndReactPoly(input, i)).min().getAsInt();
+    }
+
+    private int removeAndReactPoly(String input, int i) {
+        return reactPoly(input.replaceAll((char) ('a' + i) + "|" + (char) ('A' + i), ""));
+    }
+
+    private String init() {
         String path = "input.txt";
         if (System.getProperty("user.dir").endsWith("adventofcode")) { // executed from the proj root dir
             path = "tmp/production/adventofcode/" + this.getClass().getSimpleName().toLowerCase() + "/" + path;
         }
 
         try (Stream<String> stream = Files.lines(Paths.get(path))) {
-            stream.forEach(System.out::println);
+            return stream.findFirst().get();// .forEach(System.out::println);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Collections.emptyList();
+        return null; //Collections.emptyList();
     }
 }
