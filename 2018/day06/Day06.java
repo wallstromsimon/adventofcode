@@ -28,18 +28,24 @@ public class Day06 {
             for (int j = minY; j <= maxY; j++) {
                 Coordinate tmpC = null;
                 int minDistance = Integer.MAX_VALUE;
+                boolean nomansland = false;
                 // min dis between i,j and c.x, c.y
                 for (Coordinate coordinate : input) {
-                    int distance = Math.abs(coordinate.x - i) + Math.abs(coordinate.y - j);
+                    int distance = Math.abs(coordinate.x - i) + Math.abs(coordinate.y - j); // hm, just lucky? Maybe sort by distance and pick top only if we only have one of that distance
                     if (distance < minDistance) {
                         minDistance = distance;
                         tmpC = coordinate;
+                        nomansland = false;
+                    } else if (distance == minDistance){
+                        nomansland = true;
                     }
                     if (coordinate.x == minX || coordinate.x == maxX || coordinate.y == minY || coordinate.y == maxY) {
                         coordinate.edge = true; // hm, only do this once? even remove
                     }
                 }
-                tmpC.manhattanArea++;
+                if (!nomansland) {
+                    tmpC.manhattanArea++;
+                }
             }
         }
 
