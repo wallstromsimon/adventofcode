@@ -1,7 +1,10 @@
-import java.util.*;
-import java.util.stream.*;
-import java.nio.file.*;
-import java.io.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Day08 {
     public static void main(String[] args) {
@@ -24,7 +27,6 @@ public class Day08 {
 
     private int metadataSum(Node node) {
         int metaSum = node.meta.stream().mapToInt(Integer::intValue).sum();
-        //System.out.println(node.meta + " = " + metaSum);
         if (node.nbrChilds > 0) {
             for (Node child : node.childs) {
                 metaSum += metadataSum(child);
@@ -34,30 +36,23 @@ public class Day08 {
     }
 
     private int part2(Node root) {
-
         return metadataSum2(root);
     }
 
     private int metadataSum2(Node node) {
-        System.out.println("node: " + node);
         int metaSum = 0;
         if (node.nbrChilds == 0) {
-            System.out.println("a");
             metaSum = node.meta.stream().mapToInt(Integer::intValue).sum();
         } else {
             for (Integer index : node.meta) {
-                index = index - 1; // to match index of array
-                System.out.println("b " + index);
+                index--; // to match index of array
                 if (index >= 0 && index < node.childs.size()) {
-                    System.out.println("c");
                     metaSum += metadataSum2(node.childs.get(index));
                 } else {
-                    System.out.println("d");
                     metaSum += 0;
                 }
             }
         }
-        System.out.println("sum: " + metaSum);
         return metaSum;
     }
 
@@ -83,16 +78,23 @@ public class Day08 {
     }
 
     private int populateNodes(List<Integer> input, int index, Node node) {
+        // remove headers
         node.nbrChilds = input.get(index++);
         node.nbrMeta = input.get(index++);
+
+        // Create nodes
         for (int i = 0; i < node.nbrChilds; i++) {
             Node child = new Node();
             node.childs.add(child);
             index = populateNodes(input, index, child);
         }
+
+        // Assign meta from the "inside" out
         for (int i = 0; i < node.nbrMeta; i++) {
             node.meta.add(input.get(index + i));
         }
+
+        // return the index where the nex node begins
         return index + node.nbrMeta;
     }
 
