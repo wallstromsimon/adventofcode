@@ -42,7 +42,6 @@ public class Day07 {
                     avail.add(s);
                 }
             }
-
         }
 
         return done.toString();
