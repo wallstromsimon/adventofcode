@@ -89,7 +89,7 @@ public class Day10 {
 
         for (int i = 0; i <= maxX; i++) {
             for (int j = 0; j <= maxY; j++) {
-                sky[i][j] = "-";
+                sky[i][j] = " ";
             }
         }
 
