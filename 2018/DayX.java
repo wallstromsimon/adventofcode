@@ -23,7 +23,7 @@ public class DayX {
     }
 
     private String part2(List<String> input) {
-        return "part1";
+        return "part2";
     }
 
     private List<String> init(){
