@@ -17,18 +17,9 @@ public class Day12 {
 
     public Day12() {
         String initialState = "##.#.#.##..#....######..#..#...#.#..#.#.#..###.#.#.#..#..###.##.#..#.##.##.#.####..##...##..#..##.#.";
-        //String initialState = "#..#.#..##......###...###"; // TEST
-        System.out.println(initialState);
         List<Pot> pots = initPots(initialState);
 
-        pots.forEach(System.out::print);
-        System.out.println();
-
-        pots.stream().map(pot -> pot.index + " ").forEach(System.out::print);
-        System.out.println();
-
         var rules = init();
-        //rules.forEach(System.out::println);
 
         long start = System.currentTimeMillis();
         System.out.println("Part one: " + part1(rules, pots));
@@ -56,95 +47,51 @@ public class Day12 {
     }
 
     private int part1(List<Rule> rules, List<Pot> pots) {
-        pots.forEach(System.out::print);
-        System.out.println();
         for (int i = 0; i < 20; i++) {
-            System.out.println(i + " " + pots.size());
             pots = getNextGenPots(rules, pots);
-            pots.forEach(System.out::print);
-            System.out.println();
-            pots.stream().map(pot -> pot.index + " ").forEach(System.out::print);
-            System.out.println();
         }
 
-        System.out.println("...#....#...#....#....#..#..##...#..#..##.##..##.##..##..##..##..##....#....#...#...#....#...#....#....#....#....#...............................");
         return pots.stream().filter(pot -> pot.hasPlant).mapToInt(pot -> pot.index).sum();
     }
 
     private List<Pot> getNextGenPots(List<Rule> rules, List<Pot> pots) {
-        int initialPotSize = pots.size();
+
+        // Add 5 to start and to the end
         List<Pot> nextGenPots = new LinkedList<>();
-        /*
-        List<Pot> firstPart = pots.subList(0, 5);
-        boolean hasPlant = firstPart.stream().anyMatch(pot -> pot.hasPlant);
-        if (hasPlant) {
-            int lowestIndex = firstPart.get(0).index;
-            // add empty to start
-            System.out.println("adding at " + lowestIndex);
-            for (int i = lowestIndex - 1; i > lowestIndex - 7; i--) {
-                pots.add(0, new Pot(i, false));
-            }
-        }
-        */
-
-        for (int i = 0; i < 2; i++) {
-            //List<Pot> potsToCheck = pots.subList(i, i + 5);
-            //potsToCheck.forEach(System.out::print);
-            //hasPlant = potsToCheck.stream().anyMatch(pot -> pot.hasPlant);
-            //if (hasPlant) {
-            //int index = hasPlant ? i + 5 : i;
-            nextGenPots.add(new Pot(pots.get(i).index, pots.get(i).hasPlant));
-
-            //}
-            //boolean needsMore = i + 10 < pots.size() && pots.subList(i, i + 10).stream().anyMatch(pot -> pot.hasPlant);
-            //if (needsMore) {
-            //nextGenPots.add(new Pot(pots.get(i).index, pots.get(i).hasPlant));
-            //}
+        int firstIndex = pots.get(0).index;
+        int lastIndex = pots.get(pots.size() -1).index;
+        for (int i = 0; i < 5; i++) {
+            pots.add(0, new Pot(--firstIndex, false));
+            pots.add(new Pot(++lastIndex, false));
         }
 
-        boolean foundPlant = false;
         for (int i = 2; i < pots.size() - 2; i++) {
             List<Pot> potsToCheck = pots.subList(i - 2, i + 3);
-            //potsToCheck.forEach(System.out::print);
             boolean shouldHavePlant = rules.stream().anyMatch(rule -> rule.check(potsToCheck));
-            //System.out.println(" -> " + shouldHavePlant);
-            //boolean hasPlant = potsToCheck.stream().anyMatch(pot -> pot.hasPlant);
-            //if (shouldHavePlant || hasPlant || foundPlant) {
-                nextGenPots.add(new Pot(pots.get(i).index, shouldHavePlant));
-                //if (i < 5) {
-                  //  nextGenPots.add(0, new Pot(nextGenPots.get(0).index - 1, false));
-                //}
-                foundPlant = true;
-            //}
+            nextGenPots.add(new Pot(pots.get(i).index, shouldHavePlant));
         }
 
-        for (int i = initialPotSize - 2; i < initialPotSize; i++) {
-            nextGenPots.add(new Pot(pots.get(i).index, pots.get(i).hasPlant));
+        // strip head and tail ...
+        while (!nextGenPots.get(0).hasPlant){
+            nextGenPots.remove(0);
+        }
+        while (!nextGenPots.get(nextGenPots.size() - 1).hasPlant) {
+            nextGenPots.remove(nextGenPots.size() - 1);
         }
 
-        boolean needsMore = 15 < nextGenPots.size() && nextGenPots.subList(nextGenPots.size() - 15, nextGenPots.size()).stream().anyMatch(pot -> pot.hasPlant);
-        if (needsMore) {
-            for (int i = initialPotSize; i < initialPotSize + 5; i++) {
-                nextGenPots.add(new Pot(i, false));
-            }
-        }
         return nextGenPots;
     }
 
     private long part2(List<Rule> rules, List<Pot> pots) {
-        pots.forEach(System.out::print);
-        System.out.println();
         long l = 50000000000L;
         long lastSum = pots.stream().filter(pot -> pot.hasPlant).mapToLong(pot -> pot.index).sum();
         long lastDiff = lastSum;
         long sameDiffCount = 0;
-        for (long i = 0; i < 400; i++) {
-            //System.out.println(i + " " + pots.size());
+        for (long i = 0; i < l; i++) {
             pots = getNextGenPots(rules, pots);
             long sum = pots.stream().filter(pot -> pot.hasPlant).mapToLong(pot -> pot.index).sum();
             long diff = sum - lastSum;
             lastSum = sum;
-            //System.out.println(i + " sum: " + sum + " diff: " + diff);
 
             if (diff == lastDiff) {
                 sameDiffCount++;
@@ -153,26 +100,12 @@ public class Day12 {
                 sameDiffCount = 0;
             }
 
-
-            /*
-            pots.forEach(System.out::print);
-            System.out.println();
-            pots.stream().map(pot -> pot.index + " ").forEach(System.out::print);
-            System.out.println();
-
-
             if (sameDiffCount > 100) {
-                //return sum + diff * (l-i-1);
+                return sum + diff * (l-i-1);
             }
-            */
         }
 
-        return pots.stream().filter(pot -> pot.hasPlant).mapToLong(pot -> pot.index).sum() + lastDiff * (l-2000);
-        // not 1900000000574 to high
-        //     1900000000612
-        //     1900000000650
-        //     1899999939736
-        //     1899999939774
+        return Long.MIN_VALUE;
     }
 
     private List<Rule> init() {
