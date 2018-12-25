@@ -41,6 +41,7 @@ public class Day15_2 {
         // 208856 too low
         // 210605 too low
         // 256128 nope
+        // 255852 nope :(
     }
 
     private String part2(Cave input) {
@@ -149,28 +150,33 @@ public class Day15_2 {
             return false;
         }
 
+        final int maxSteps = Integer.MAX_VALUE - 1000000;
+
         private void move(Player player, List<Player> targets) {
-            // Move one step closer to the closest target, reading style
-            // Move backwards and populate dynamically? Choose first (reading) with lowest number.
-            int maxSteps = Integer.MAX_VALUE - 1000000;
-            int minSteps = maxSteps;
-            Coordinate minDisCoor = new Coordinate(maxSteps, maxSteps);
-
+            List<CoordinateStep> coordinateSteps = new ArrayList<>();
             for (Player target : targets) {
-                // return something....!
-                shortestPathToTarget(player, target);
-
+                coordinateSteps.add(shortestPathToTarget(player, target));
             }
 
-            if (minSteps < maxSteps && minDisCoor.x < maxSteps && minDisCoor.y < maxSteps) {
-                System.out.println("Move: " + minDisCoor);
-                player.y = minDisCoor.y;
-                player.x = minDisCoor.x;
+            Comparator<CoordinateStep> comparator = Comparator.comparingInt((CoordinateStep c) -> c.steps)
+                    .thenComparingInt((CoordinateStep c) -> c.coordinate.y)
+                    .thenComparingInt((CoordinateStep c) -> c.coordinate.x);
+            coordinateSteps.sort(comparator);
+            System.out.println("Pot coords: " + coordinateSteps);
+
+
+            if (!coordinateSteps.isEmpty()) {
+                Coordinate minDisCoor = coordinateSteps.get(0).coordinate;
+
+                if (minDisCoor.y < maxSteps && minDisCoor.x < maxSteps) {
+                    System.out.println("Move: " + minDisCoor);
+                    player.y = minDisCoor.y;
+                    player.x = minDisCoor.x;
+                }
             }
         }
 
-        private void shortestPathToTarget(Player player, Player target) {
-            int maxSteps = Integer.MAX_VALUE - 1000000;
+        private CoordinateStep shortestPathToTarget(Player player, Player target) {
             int minSteps = maxSteps;
             Coordinate minDisCoor = new Coordinate(maxSteps, maxSteps);
             boolean[][] visited = new boolean[y][x];
@@ -218,7 +224,7 @@ public class Day15_2 {
                         minSteps = steps[currCoor.y][currCoor.x];
                         minDisCoor = currCoor;
                     }
-                    break;
+                    return new CoordinateStep(minDisCoor, minSteps);
                 } else {
                     lastCoor = currCoor;
                 }
@@ -258,6 +264,7 @@ public class Day15_2 {
             // if this is has shorter path or is earlier in read order
 
             //break; // hmmmm....
+            return null;
         }
 
         private boolean attack(Player player, List<Player> possibleTargets) {
@@ -436,6 +443,20 @@ public class Day15_2 {
             }
             return false;
 
+        }
+    }
+
+    class CoordinateStep {
+        Coordinate coordinate;
+        int steps;
+
+        public CoordinateStep(Coordinate coordinate, int steps) {
+            this.coordinate = coordinate;
+            this.steps = steps;
+        }
+        @Override
+        public String toString() {
+            return coordinate.toString() + ": " + steps;
         }
     }
 }
