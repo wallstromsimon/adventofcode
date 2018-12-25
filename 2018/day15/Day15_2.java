@@ -42,6 +42,10 @@ public class Day15_2 {
         // 210605 too low
         // 256128 nope
         // 255852 nope :(
+        // 237745 from py
+        // 251910 nope
+        // 240033 ??
+        // 246530
     }
 
     private String part2(Cave input) {
@@ -55,7 +59,7 @@ public class Day15_2 {
         }
 
         try (Stream<String> stream = Files.lines(Paths.get(path))) {
-            return new Cave(stream); //.forEach(System.out::println);
+            return new Cave(stream);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -73,7 +77,6 @@ public class Day15_2 {
             x = input.get(0).split("").length;
             y = input.size();
 
-            //System.out.println("x: " + x + ", y: " + y);
             caveParts = new CavePart[y][x];
 
             int i = 0;
@@ -111,7 +114,6 @@ public class Day15_2 {
         // Return true if we are done!
         boolean round() {
             Comparator<Player> comparator = Comparator.comparingInt((Player p) -> p.y).thenComparingInt((Player p) -> p.x);
-
             List<Player> alivePlayers = players.stream().filter(player -> player.hp > 0).sorted(comparator).collect(Collectors.toList());
 
             for (Player player : alivePlayers) {
@@ -120,11 +122,10 @@ public class Day15_2 {
                 }
 
                 System.out.println("play: " + player);
-                // Check if there are targets at all?
                 List<Player> targets = players.stream()
                         .filter(player1 -> !player1.symbol.equals(player.symbol))
                         .filter(player1 -> player1.hp > 0)
-                        .collect(Collectors.toList()); //getInRange(player);
+                        .collect(Collectors.toList());
                 if (!targets.isEmpty()) {
                     System.out.println("targets: " + targets);
 
@@ -143,7 +144,6 @@ public class Day15_2 {
                     boolean attacked2 = attack(player, targets);
                     print();
                 } else {
-                    System.out.println("DONE?");
                     return true;
                 }
             }
@@ -158,14 +158,13 @@ public class Day15_2 {
                 coordinateSteps.add(shortestPathToTarget(player, target));
             }
 
-            Comparator<CoordinateStep> comparator = Comparator.comparingInt((CoordinateStep c) -> c.steps)
-                    .thenComparingInt((CoordinateStep c) -> c.coordinate.y)
-                    .thenComparingInt((CoordinateStep c) -> c.coordinate.x);
-            coordinateSteps.sort(comparator);
-            System.out.println("Pot coords: " + coordinateSteps);
-
-
             if (!coordinateSteps.isEmpty()) {
+                Comparator<CoordinateStep> comparator = Comparator.comparingInt((CoordinateStep c) -> c.steps)
+                        .thenComparingInt((CoordinateStep c) -> c.coordinate.y)
+                        .thenComparingInt((CoordinateStep c) -> c.coordinate.x);
+                coordinateSteps.sort(comparator);
+                System.out.println("Pot coords: " + coordinateSteps);
+
                 Coordinate minDisCoor = coordinateSteps.get(0).coordinate;
 
                 if (minDisCoor.y < maxSteps && minDisCoor.x < maxSteps) {
@@ -268,10 +267,12 @@ public class Day15_2 {
         }
 
         private boolean attack(Player player, List<Player> possibleTargets) {
-            // Attack "first" if next to;
             List<Player> adjacent = possibleTargets.stream().filter(player1 -> player1.isNextTo(player)).collect(Collectors.toList());
-            if (!adjacent.isEmpty()) { // Attack!
-                Player targetLowestHp = adjacent.stream().min(Comparator.comparing(player1 -> player.hp)).get();
+            if (!adjacent.isEmpty()) {
+                Comparator<Player> comparator = Comparator.comparingInt((Player p) -> p.hp)
+                        .thenComparingInt((Player p) -> p.y)
+                        .thenComparingInt((Player p) -> p.x);
+                Player targetLowestHp = adjacent.stream().sorted(comparator).findFirst().get(); //.min(Comparator.comparing(player1 -> player.hp)).get();
                 targetLowestHp.hp -= player.attack;
                 System.out.println("attack! " + targetLowestHp);
                 if (targetLowestHp.hp <= 0) {
@@ -356,7 +357,6 @@ public class Day15_2 {
         }
 
         boolean isNextTo(Player player) {
-            // Can be simplified but I'm not that smart?
             boolean above = this.x == player.x && this.y == player.y - 1;
             boolean below = this.x == player.x && this.y == player.y + 1;
             boolean left = this.x == player.x - 1 && this.y == player.y;
