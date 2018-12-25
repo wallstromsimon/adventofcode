@@ -40,6 +40,7 @@ public class Day15_2 {
         // 208853 too low
         // 208856 too low
         // 210605 too low
+        // 256128 nope
     }
 
     private String part2(Cave input) {
@@ -47,7 +48,7 @@ public class Day15_2 {
     }
 
     private Cave init() {
-        String path = "test2.txt";
+        String path = "input.txt";
         if (System.getProperty("user.dir").endsWith("adventofcode")) { // executed from the proj root dir
             path = "tmp/production/adventofcode/day15/" + path;
         }
@@ -139,7 +140,7 @@ public class Day15_2 {
                             .filter(player1 -> player1.hp > 0)
                             .collect(Collectors.toList());
                     boolean attacked2 = attack(player, targets);
-                    //print();
+                    print();
                 } else {
                     System.out.println("DONE?");
                     return true;
@@ -154,93 +155,109 @@ public class Day15_2 {
             int maxSteps = Integer.MAX_VALUE - 1000000;
             int minSteps = maxSteps;
             Coordinate minDisCoor = new Coordinate(maxSteps, maxSteps);
-            boolean[][] visited = new boolean[y][x];
-            int[][] steps = new int[y][x];
-            for (int k = 0; k < y; k++) {
-                for (int l = 0; l < x; l++) {
-                    steps[k][l] = maxSteps;
-                    visited[k][l] = caveParts[k][l].blocks();
-                }
-            }
-            visited[player.y][player.x] = true;
-            for (Player player1 : players) {
-                visited[player1.y][player1.x] = true;
-            }
 
-            LinkedList<Coordinate> queue = new LinkedList<>();
             for (Player target : targets) {
-                // Don't do it for all targets, set all targets to 0 and add all neighbours to queue!
-                // Nope! Just add targets, set them to 0.
-                steps[target.y][target.x] = 0;
-                visited[target.y][target.x] = true;
+                // return something....!
+                shortestPathToTarget(player, target);
 
-                Coordinate left = new Coordinate(target.x - 1, target.y);
-                if (!isBlocked(left.x, left.y)) {
-                    queue.add(left);
-                }
-                Coordinate right = new Coordinate(target.x + 1, target.y);
-                if (!isBlocked(right.x, right.y)) {
-                    queue.add(right);
-                }
-                Coordinate below = new Coordinate(target.x, target.y - 1);
-                if (!isBlocked(below.x, below.y)) {
-                    queue.add(below);
-                }
-                Coordinate above = new Coordinate(target.x, target.y + 1);
-                if (!isBlocked(above.x, above.y)) {
-                    queue.add(above);
-                }
             }
 
-            while (!queue.isEmpty()) {
-                //System.out.println("q: " + queue);
-
-                Comparator<Coordinate> comparator = Comparator.comparingInt((Coordinate c) -> steps[c.x][c.y]).thenComparingInt((Coordinate c) -> c.y).thenComparingInt((Coordinate c) -> c.x);
-                queue.sort(comparator);
-                Coordinate currCoor = queue.pop();
-                visited[currCoor.y][currCoor.x] = true;
-
-
-
-                // Take shortst +1 from neighbours
-                // OR steps[currCoor.y][currCoor.x] if that's already lower!!!!!!
-                int tmp = 1 + IntStream.of(steps[currCoor.y - 1][currCoor.x], steps[currCoor.y + 1][currCoor.x], steps[currCoor.y][currCoor.x - 1], steps[currCoor.y][currCoor.x + 1]).min().getAsInt();
-                steps[currCoor.y][currCoor.x] = steps[currCoor.y][currCoor.x] < tmp ? steps[currCoor.y][currCoor.x] : tmp;
-
-                // Calc neighbour path instead,
-
-                if (!visited[currCoor.y - 1][currCoor.x]) {
-                    queue.add(new Coordinate(currCoor.x, currCoor.y - 1));
-                }
-                if (!visited[currCoor.y + 1][currCoor.x]) {
-                    queue.add(new Coordinate(currCoor.x, currCoor.y + 1));
-                }
-                if (!visited[currCoor.y][currCoor.x - 1]) {
-                    queue.add(new Coordinate(currCoor.x - 1, currCoor.y));
-                }
-                if (!visited[currCoor.y][currCoor.x + 1]) {
-                    queue.add(new Coordinate(currCoor.x + 1, currCoor.y));
-                }
-
-                // Stop if we are on "player"
-                if (currCoor.isNextTo(player)) {
-                    //System.out.println("pot curr: " + currCoor + " " + steps[currCoor.y][currCoor.x]);
-                    // if this is has shorter path or is earlier in read order
-                    if (steps[currCoor.y][currCoor.x] < minSteps) {
-                        minSteps = steps[currCoor.y][currCoor.x];
-                        minDisCoor = currCoor;
-                    } else if (steps[currCoor.y][currCoor.x] == minSteps && (currCoor.y < minDisCoor.y || (currCoor.y <= minDisCoor.y
-                            && currCoor.x < minDisCoor.x))) {
-                        minDisCoor = currCoor;
-                    }
-                    //break; // hmmmm....
-                }
-            }
             if (minSteps < maxSteps && minDisCoor.x < maxSteps && minDisCoor.y < maxSteps) {
                 System.out.println("Move: " + minDisCoor);
                 player.y = minDisCoor.y;
                 player.x = minDisCoor.x;
             }
+        }
+
+        private void shortestPathToTarget(Player player, Player target) {
+            int maxSteps = Integer.MAX_VALUE - 1000000;
+            int minSteps = maxSteps;
+            Coordinate minDisCoor = new Coordinate(maxSteps, maxSteps);
+            boolean[][] visited = new boolean[y][x];
+            int[][] steps = new int[y][x];
+            LinkedList<Coordinate> queue = new LinkedList<>();
+            for (int k = 0; k < y; k++) {
+                for (int l = 0; l < x; l++) {
+                    steps[k][l] = maxSteps;
+                    visited[k][l] = caveParts[k][l].blocks();
+                    if (!caveParts[k][l].blocks()) {
+                        queue.add(new Coordinate(l, k));
+                    }
+                }
+            }
+            for (Player player1 : players) {
+                visited[player1.y][player1.x] = true;
+            }
+            visited[player.y][player.x] = false;
+
+            System.out.println("Calc path to target: " + target);
+            steps[target.y][target.x] = 0;
+            visited[target.y][target.x] = true;
+            queue.add(new Coordinate(target.x, target.y));
+            Coordinate lastCoor = null;
+            while (!queue.isEmpty()) {
+                //queue.stream().map((Coordinate c) -> c + ": " + steps[c.y][c.x]).forEach(System.out::println);
+                Comparator<Coordinate> comparator = Comparator.comparingInt((Coordinate c) -> steps[c.y][c.x])
+                        .thenComparingInt((Coordinate c) -> c.y)
+                        .thenComparingInt((Coordinate c) -> c.x);
+                //queue = queue.stream().distinct().sorted(comparator).collect(Collectors.toCollection(LinkedList::new));
+                queue.sort(comparator);
+                //System.out.println("vvv");
+                //queue.stream().map((Coordinate c) -> c + ": " + steps[c.y][c.x]).forEach(System.out::println);
+                //System.out.println("--");
+                Coordinate currCoor = queue.pop();
+                visited[currCoor.y][currCoor.x] = true;
+
+                // This only works with one dest...!
+                if (currCoor.isNextTo(player)) {//currCoor.x == player.x && currCoor.y == player.y) {
+                    System.out.println("BREAK:" + currCoor);
+                    //System.out.println("Move: " + lastCoor);
+                    //player.y = lastCoor.y;
+                    //player.x = lastCoor.x;
+                    if (steps[currCoor.y][currCoor.x] < minSteps) {
+                        minSteps = steps[currCoor.y][currCoor.x];
+                        minDisCoor = currCoor;
+                    }
+                    break;
+                } else {
+                    lastCoor = currCoor;
+                }
+
+                if (!visited[currCoor.y - 1][currCoor.x]) {
+                    Coordinate tmpCoor = new Coordinate(currCoor.x, currCoor.y - 1);
+                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] ?
+                            steps[tmpCoor.y][tmpCoor.x] :
+                            steps[currCoor.y][currCoor.x] + 1;
+                    //queue.add(tmpCoor);
+                }
+                if (!visited[currCoor.y + 1][currCoor.x]) {
+                    Coordinate tmpCoor = new Coordinate(currCoor.x, currCoor.y + 1);
+                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] ?
+                            steps[tmpCoor.y][tmpCoor.x] :
+                            steps[currCoor.y][currCoor.x] + 1;
+                    //queue.add(tmpCoor);
+                }
+                if (!visited[currCoor.y][currCoor.x - 1]) {
+                    Coordinate tmpCoor = new Coordinate(currCoor.x - 1, currCoor.y);
+                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] ?
+                            steps[tmpCoor.y][tmpCoor.x] :
+                            steps[currCoor.y][currCoor.x] + 1;
+                    //queue.add(tmpCoor);
+                }
+                if (!visited[currCoor.y][currCoor.x + 1]) {
+                    Coordinate tmpCoor = new Coordinate(currCoor.x + 1, currCoor.y);
+                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] ?
+                            steps[tmpCoor.y][tmpCoor.x] :
+                            steps[currCoor.y][currCoor.x] + 1;
+                    //  queue.add(tmpCoor);
+                }
+            }
+
+            // Stop if we are on "player"
+            //System.out.println("pot curr: " + currCoor + " " + steps[currCoor.y][currCoor.x]);
+            // if this is has shorter path or is earlier in read order
+
+            //break; // hmmmm....
         }
 
         private boolean attack(Player player, List<Player> possibleTargets) {
@@ -409,6 +426,16 @@ public class Day15_2 {
         @Override
         public String toString() {
             return "[" + y + ", " + x + "]";
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof Coordinate) {
+                Coordinate c = (Coordinate) o;
+                return c.x == this.x && c.y == this.y;
+            }
+            return false;
+
         }
     }
 }
