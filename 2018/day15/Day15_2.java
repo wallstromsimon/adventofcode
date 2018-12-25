@@ -195,7 +195,7 @@ public class Day15_2 {
             while (!queue.isEmpty()) {
                 //System.out.println("q: " + queue);
 
-                Comparator<Coordinate> comparator = Comparator.comparingInt((Coordinate c) -> steps[c.x][c.y]);
+                Comparator<Coordinate> comparator = Comparator.comparingInt((Coordinate c) -> steps[c.x][c.y]).thenComparingInt((Coordinate c) -> c.y).thenComparingInt((Coordinate c) -> c.x);
                 queue.sort(comparator);
                 Coordinate currCoor = queue.pop();
                 visited[currCoor.y][currCoor.x] = true;
