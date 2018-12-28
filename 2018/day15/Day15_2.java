@@ -48,6 +48,7 @@ public class Day15_2 {
         // 240033 ??
         // 246530 ??
         // 451520 nope
+        // 254527 nope
     }
 
     private String part2(Cave input) {
@@ -55,8 +56,14 @@ public class Day15_2 {
     }
 
     private Cave init() {
-        String path = "input.txt";
-        //String path = "test2.txt";
+        //String path = "input.txt";
+        //String path = "test.txt";
+        String path = "test2.txt"; // 47 * 590 = 27730
+        //String path = "test5.txt"; // 37 * 982 = 36334
+        //String path = "test6.txt"; // 46 * 859 = 39514
+        //String path = "test7.txt"; // 35 * 793 = 27755
+        //String path = "test8.txt"; // 54 * 536 = 28944
+        //String path = "test9.txt"; // 20 * 937 = 18740
         if (System.getProperty("user.dir").endsWith("adventofcode")) { // executed from the proj root dir
             path = "tmp/production/adventofcode/day15/" + path;
         }
@@ -80,7 +87,9 @@ public class Day15_2 {
             x = input.get(0).length();
             y = input.size();
 
-            caveParts = new CavePart[x][y];
+            System.out.println("x = " + x + ", y = " + y);
+
+            caveParts = new CavePart[y][x];
 
             int tmpy = 0;
             for (String line : input) {
@@ -106,12 +115,13 @@ public class Day15_2 {
                         default:
                             System.out.println("What");
                     }
-                    caveParts[tmpx++][tmpy] = cavePart;
+                    caveParts[tmpy][tmpx++] = cavePart;
                 }
                 tmpy++;
             }
             System.out.println();
             print();
+            System.out.println();
         }
 
         // Return true if we are done!
@@ -161,18 +171,18 @@ public class Day15_2 {
         final int maxSteps = Integer.MAX_VALUE - 1000000;
 
         private void move(Player player, List<Player> targets) {
-            List<CoordinateStep> coordinateSteps = new ArrayList<>();
+            List<CoordinateStepToTarget> coordinateSteps = new ArrayList<>();
             for (Player target : targets) {
-                CoordinateStep tmp = shortestPathToTarget(player, target);
+                CoordinateStepToTarget tmp = shortestPathToTarget(player, target);
                 if (tmp != null) {
                     coordinateSteps.add(tmp);
                 }
             }
 
             if (!coordinateSteps.isEmpty()) {
-                Comparator<CoordinateStep> comparator = Comparator.comparingInt((CoordinateStep c) -> c.steps)
-                        .thenComparingInt((CoordinateStep c) -> c.coordinate.y)
-                        .thenComparingInt((CoordinateStep c) -> c.coordinate.x);
+                Comparator<CoordinateStepToTarget> comparator = Comparator.comparingInt((CoordinateStepToTarget c) -> c.steps)
+                        .thenComparingInt((CoordinateStepToTarget c) -> c.target.y)
+                        .thenComparingInt((CoordinateStepToTarget c) -> c.target.x);
                 coordinateSteps.sort(comparator);
                 System.out.println("Pot coords: " + coordinateSteps);
 
@@ -186,105 +196,105 @@ public class Day15_2 {
             }
         }
 
-        private CoordinateStep shortestPathToTarget(Player player, Player target) {
+        private CoordinateStepToTarget shortestPathToTarget(Player player, Player target) {
             int minSteps = maxSteps;
             Coordinate minDisCoor = new Coordinate(maxSteps, maxSteps);
-            boolean[][] visited = new boolean[x][y];
-            int[][] steps = new int[x][y];
+            boolean[][] visited = new boolean[y][x];
+            int[][] steps = new int[y][x];
 
             LinkedList<Coordinate> queue = new LinkedList<>();
 
             for (int tmpy = 0; tmpy < y; tmpy++) {
                 for (int tmpx = 0; tmpx < x; tmpx++) {
-                    steps[tmpx][tmpy] = maxSteps;
-                    visited[tmpx][tmpy] = caveParts[tmpx][tmpy].blocks();
+                    steps[tmpy][tmpx] = maxSteps;
+                    visited[tmpy][tmpx] = caveParts[tmpy][tmpx].blocks();
                 }
             }
             for (Player player1 : players) {
-                visited[player1.x][player1.y] = true;
+                visited[player1.y][player1.x] = true;
             }
             for (int tmpy = 0; tmpy < y; tmpy++) {
                 for (int tmpx = 0; tmpx < x; tmpx++) {
-                    if (!visited[tmpx][tmpy]) {
+                    if (!visited[tmpy][tmpx]) {
                         queue.add(new Coordinate(tmpx, tmpy));
                     }
                 }
             }
             System.out.println("Calc path to target: " + target);
-            steps[target.x][target.y] = 0;
+            steps[target.y][target.x] = 0;
 
-            if (!visited[target.x][target.y - 1]) {
+            if (!visited[target.y - 1][target.x]) {
                 Coordinate tmpCoor = new Coordinate(target.x, target.y - 1);
-                steps[tmpCoor.x][tmpCoor.y] = 1;
+                steps[tmpCoor.y][tmpCoor.x] = 1;
                 //queue.add(tmpCoor);
             }
 
-            if (!visited[target.x][target.y + 1]) {
+            if (!visited[target.y + 1][target.x]) {
                 Coordinate tmpCoor = new Coordinate(target.x, target.y + 1);
-                steps[tmpCoor.x][tmpCoor.y] = 1;
+                steps[tmpCoor.y][tmpCoor.x] = 1;
                 //queue.add(tmpCoor);
             }
 
-            if (!visited[target.x - 1][target.y]) {
+            if (!visited[target.y][target.x - 1]) {
                 Coordinate tmpCoor = new Coordinate(target.x - 1, target.y);
-                steps[tmpCoor.x][tmpCoor.y] = 1;
+                steps[tmpCoor.y][tmpCoor.x] = 1;
                 //queue.add(tmpCoor);
             }
 
-            if (!visited[target.x + 1][target.x]) {
+            if (!visited[target.y][target.x + 1]) {
                 Coordinate tmpCoor = new Coordinate(target.x + 1, target.y);
-                steps[tmpCoor.x][tmpCoor.y] = 1;
+                steps[tmpCoor.y][tmpCoor.x] = 1;
                 //queue.add(tmpCoor);
             }
 
+            Comparator<Coordinate> comparator = Comparator.comparingInt((Coordinate c) -> steps[c.y][c.x])
+                    .thenComparingInt((Coordinate c) -> c.y)
+                    .thenComparingInt((Coordinate c) -> c.x);
             while (!queue.isEmpty()) {
-                Comparator<Coordinate> comparator = Comparator.comparingInt((Coordinate c) -> steps[c.x][c.y])
-                        .thenComparingInt((Coordinate c) -> c.y)
-                        .thenComparingInt((Coordinate c) -> c.x);
                 queue.sort(comparator);
                 //System.out.println("q:");
-                //queue.stream().filter(c -> steps[c.x][c.y] != maxSteps).map((Coordinate c) -> c + ": " + steps[c.x][c.y]).forEach(System.out::println);
+                //queue.stream().filter(c -> steps[c.y][c.x] != maxSteps).map((Coordinate c) -> c + ": " + steps[c.y][c.x]).forEach(System.out::println);
                 Coordinate currCoor = queue.pop();
 
-                visited[currCoor.x][currCoor.y] = true;
+                visited[currCoor.y][currCoor.x] = true;
 
-                if (steps[currCoor.x][currCoor.y] == minSteps) {
-                    System.out.println("BREAK B:" + currCoor + " : " + steps[currCoor.x][currCoor.y]);
+                if (steps[currCoor.y][currCoor.x] == minSteps) {
+                    System.out.println("BREAK B:" + currCoor + " : " + steps[currCoor.y][currCoor.x]);
                     return null;
                 }
 
                 if (currCoor.isNextTo(player)) {
-                    System.out.println("BREAK A:" + currCoor + " : " + steps[currCoor.x][currCoor.y]);
-                    if (steps[currCoor.x][currCoor.y] < minSteps) {
-                        minSteps = steps[currCoor.x][currCoor.y];
+                    System.out.println("BREAK A:" + currCoor + " : " + steps[currCoor.y][currCoor.x]);
+                    if (steps[currCoor.y][currCoor.x] < minSteps) {
+                        minSteps = steps[currCoor.y][currCoor.x];
                         minDisCoor = currCoor;
                     }
-                    return new CoordinateStep(minDisCoor, minSteps);
+                    return new CoordinateStepToTarget(minDisCoor, minSteps, target);
                 }
 
-                if (!visited[currCoor.x][currCoor.y - 1]) {
-                    Coordinate tmpCoor = new Coordinate(currCoor.x, currCoor.y - 1);
-                    steps[tmpCoor.x][tmpCoor.y] = steps[tmpCoor.x][tmpCoor.y] < steps[currCoor.x][currCoor.y] + 1 ?
-                            steps[tmpCoor.x][tmpCoor.y] :
-                            steps[currCoor.x][currCoor.y] + 1;
-                }
-                if (!visited[currCoor.x][currCoor.y + 1]) {
-                    Coordinate tmpCoor = new Coordinate(currCoor.x, currCoor.y + 1);
-                    steps[tmpCoor.x][tmpCoor.y] = steps[tmpCoor.x][tmpCoor.y] < steps[currCoor.x][currCoor.y] + 1 ?
-                            steps[tmpCoor.x][tmpCoor.y] :
-                            steps[currCoor.x][currCoor.y] + 1;
-                }
-                if (!visited[currCoor.x - 1][currCoor.y]) {
+                if (!visited[currCoor.y][currCoor.x - 1]) {
                     Coordinate tmpCoor = new Coordinate(currCoor.x - 1, currCoor.y);
-                    steps[tmpCoor.x][tmpCoor.y] = steps[tmpCoor.x][tmpCoor.y] < steps[currCoor.x][currCoor.y] + 1 ?
-                            steps[tmpCoor.x][tmpCoor.y] :
-                            steps[currCoor.x][currCoor.y] + 1;
+                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] + 1 ?
+                            steps[tmpCoor.y][tmpCoor.x] :
+                            steps[currCoor.y][currCoor.x] + 1;
                 }
-                if (!visited[currCoor.x + 1][currCoor.x]) {
+                if (!visited[currCoor.y][currCoor.x + 1]) {
                     Coordinate tmpCoor = new Coordinate(currCoor.x + 1, currCoor.y);
-                    steps[tmpCoor.x][tmpCoor.y] = steps[tmpCoor.x][tmpCoor.y] < steps[currCoor.x][currCoor.y] + 1 ?
-                            steps[tmpCoor.x][tmpCoor.y] :
-                            steps[currCoor.x][currCoor.y] + 1;
+                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] + 1 ?
+                            steps[tmpCoor.y][tmpCoor.x] :
+                            steps[currCoor.y][currCoor.x] + 1;
+                }
+                if (!visited[currCoor.y - 1][currCoor.x]) {
+                    Coordinate tmpCoor = new Coordinate(currCoor.x, currCoor.y - 1);
+                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] + 1 ?
+                            steps[tmpCoor.y][tmpCoor.x] :
+                            steps[currCoor.y][currCoor.x] + 1;
+                }
+                if (!visited[currCoor.y + 1][currCoor.x]) {
+                    Coordinate tmpCoor = new Coordinate(currCoor.x, currCoor.y + 1);
+                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] + 1 ?
+                            steps[tmpCoor.y][tmpCoor.x] :
+                            steps[currCoor.y][currCoor.x] + 1;
                 }
             }
             System.out.println("BREAK C:");
@@ -320,7 +330,7 @@ public class Day15_2 {
                     if (players.stream().anyMatch(player -> player.x == tx && player.y == ty && player.hp > 0)) {
                         System.out.print(players.stream().filter(player -> player.x == tx && player.y == ty).findFirst().get().symbol);
                     } else {
-                        System.out.print(caveParts[tmpx][tmpy].symbol);
+                        System.out.print(caveParts[tmpy][tmpx].symbol);
                     }
                 }
                 System.out.println();
@@ -361,7 +371,7 @@ public class Day15_2 {
 
         @Override
         public String toString() {
-            return "[" + x + "," + y + "]: " + symbol + " (" + hp + ")";
+            return "[" + y + "," + x + "]: " + symbol + " (" + hp + ")";
         }
 
         boolean isNextTo(Player player) {
@@ -454,13 +464,15 @@ public class Day15_2 {
         }
     }
 
-    class CoordinateStep {
+    class CoordinateStepToTarget {
         Coordinate coordinate;
         int steps;
+        Player target;
 
-        public CoordinateStep(Coordinate coordinate, int steps) {
+        public CoordinateStepToTarget(Coordinate coordinate, int steps, Player target) {
             this.coordinate = coordinate;
             this.steps = steps;
+            this.target = target;
         }
 
         @Override
