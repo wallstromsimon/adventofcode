@@ -124,21 +124,26 @@ public class Day15_2 {
             System.out.println();
         }
 
+        List<Player> getAliveSortedPlayers() {
+            Comparator<Player> comparator = Comparator.comparingInt((Player p) -> p.coordinate.y).thenComparingInt((Player p) -> p.coordinate.x);
+            return players.stream().filter(player -> player.hp > 0).sorted(comparator).collect(Collectors.toList());
+        }
+
+        List<Player> getAliveSortedTargets(String symbol) {
+            Comparator<Player> comparator = Comparator.comparingInt((Player p) -> p.coordinate.y).thenComparingInt((Player p) -> p.coordinate.x);
+            return players.stream().filter(player -> player.hp > 0).filter(player -> !symbol.equals(player.symbol)).sorted(comparator).collect(Collectors.toList());
+        }
+
         // Return true if we are done!
         boolean round() {
-            Comparator<Player> comparator = Comparator.comparingInt((Player p) -> p.y).thenComparingInt((Player p) -> p.x);
-            List<Player> alivePlayers = players.stream().filter(player -> player.hp > 0).sorted(comparator).collect(Collectors.toList());
 
-            for (final Player player : alivePlayers) {
+            for (final Player player : getAliveSortedPlayers()) {
                 if (player.hp <= 0) {
                     continue;
                 }
 
                 System.out.println("play: " + player);
-                List<Player> targets = alivePlayers.stream()
-                        .filter(player1 -> !player1.symbol.equals(player.symbol))
-                        .filter(player1 -> player1.hp > 0)
-                        .collect(Collectors.toList());
+                List<Player> targets = getAliveSortedTargets(player.symbol);
 
                 if (targets.isEmpty()) {
                     return true;
@@ -150,19 +155,20 @@ public class Day15_2 {
                     continue;
                 }
 
-                targets = alivePlayers.stream()
-                        .filter(player1 -> !player1.symbol.equals(player.symbol))
-                        .filter(player1 -> player1.hp > 0)
-                        .collect(Collectors.toList());
+                targets = getAliveSortedTargets(player.symbol);
+                if (targets.isEmpty()) {
+                    return true;
+                }
 
                 move(player, targets);
 
                 // Check if we can attack after move
-                targets = alivePlayers.stream()
-                        .filter(player1 -> !player1.symbol.equals(player.symbol))
-                        .filter(player1 -> player1.hp > 0)
-                        .collect(Collectors.toList());
+                targets = getAliveSortedTargets(player.symbol);
                 attack(player, targets);
+                if (targets.isEmpty()) {
+                    return true;
+                }
+
                 print();
             }
             return false;
@@ -181,8 +187,8 @@ public class Day15_2 {
 
             if (!coordinateSteps.isEmpty()) {
                 Comparator<CoordinateStepToTarget> comparator = Comparator.comparingInt((CoordinateStepToTarget c) -> c.steps)
-                        .thenComparingInt((CoordinateStepToTarget c) -> c.target.y)
-                        .thenComparingInt((CoordinateStepToTarget c) -> c.target.x);
+                        .thenComparingInt((CoordinateStepToTarget c) -> c.target.coordinate.y)
+                        .thenComparingInt((CoordinateStepToTarget c) -> c.target.coordinate.x);
                 coordinateSteps.sort(comparator);
                 System.out.println("Pot coords: " + coordinateSteps);
 
@@ -190,8 +196,8 @@ public class Day15_2 {
 
                 if (minDisCoor.y < maxSteps && minDisCoor.x < maxSteps) {
                     System.out.println("Move: " + minDisCoor);
-                    player.y = minDisCoor.y;
-                    player.x = minDisCoor.x;
+                    player.coordinate.y = minDisCoor.y;
+                    player.coordinate.x = minDisCoor.x;
                 }
             }
         }
@@ -210,9 +216,10 @@ public class Day15_2 {
                     visited[tmpy][tmpx] = caveParts[tmpy][tmpx].blocks();
                 }
             }
-            for (Player player1 : players) {
-                visited[player1.y][player1.x] = true;
+            for (Player player1 : getAliveSortedPlayers()) {
+                visited[player1.coordinate.y][player1.coordinate.x] = true;
             }
+
             for (int tmpy = 0; tmpy < y; tmpy++) {
                 for (int tmpx = 0; tmpx < x; tmpx++) {
                     if (!visited[tmpy][tmpx]) {
@@ -221,30 +228,13 @@ public class Day15_2 {
                 }
             }
             System.out.println("Calc path to target: " + target);
-            steps[target.y][target.x] = 0;
+            steps[target.coordinate.y][target.coordinate.x] = 0;
 
-            if (!visited[target.y - 1][target.x]) {
-                Coordinate tmpCoor = new Coordinate(target.x, target.y - 1);
-                steps[tmpCoor.y][tmpCoor.x] = 1;
-                //queue.add(tmpCoor);
-            }
-
-            if (!visited[target.y + 1][target.x]) {
-                Coordinate tmpCoor = new Coordinate(target.x, target.y + 1);
-                steps[tmpCoor.y][tmpCoor.x] = 1;
-                //queue.add(tmpCoor);
-            }
-
-            if (!visited[target.y][target.x - 1]) {
-                Coordinate tmpCoor = new Coordinate(target.x - 1, target.y);
-                steps[tmpCoor.y][tmpCoor.x] = 1;
-                //queue.add(tmpCoor);
-            }
-
-            if (!visited[target.y][target.x + 1]) {
-                Coordinate tmpCoor = new Coordinate(target.x + 1, target.y);
-                steps[tmpCoor.y][tmpCoor.x] = 1;
-                //queue.add(tmpCoor);
+            for (Coordinate neighbour : target.coordinate.getNeighbours()) {
+                if (!visited[neighbour.y][neighbour.x]) {
+                    steps[neighbour.y][neighbour.x] = 1;
+                    //queue.add(tmpCoor);
+                }
             }
 
             Comparator<Coordinate> comparator = Comparator.comparingInt((Coordinate c) -> steps[c.y][c.x])
@@ -272,46 +262,30 @@ public class Day15_2 {
                     return new CoordinateStepToTarget(minDisCoor, minSteps, target);
                 }
 
-                if (!visited[currCoor.y][currCoor.x - 1]) {
-                    Coordinate tmpCoor = new Coordinate(currCoor.x - 1, currCoor.y);
-                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] + 1 ?
-                            steps[tmpCoor.y][tmpCoor.x] :
-                            steps[currCoor.y][currCoor.x] + 1;
+                int nextSteps = steps[currCoor.y][currCoor.x] + 1;
+                for (Coordinate neighbour : currCoor.getNeighbours()) {
+                    if (!visited[neighbour.y][neighbour.x]) {
+                        int neighbourSteps = steps[neighbour.y][neighbour.x];
+                        steps[neighbour.y][neighbour.x] = neighbourSteps < nextSteps ? neighbourSteps : nextSteps;
+                    }
                 }
-                if (!visited[currCoor.y][currCoor.x + 1]) {
-                    Coordinate tmpCoor = new Coordinate(currCoor.x + 1, currCoor.y);
-                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] + 1 ?
-                            steps[tmpCoor.y][tmpCoor.x] :
-                            steps[currCoor.y][currCoor.x] + 1;
-                }
-                if (!visited[currCoor.y - 1][currCoor.x]) {
-                    Coordinate tmpCoor = new Coordinate(currCoor.x, currCoor.y - 1);
-                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] + 1 ?
-                            steps[tmpCoor.y][tmpCoor.x] :
-                            steps[currCoor.y][currCoor.x] + 1;
-                }
-                if (!visited[currCoor.y + 1][currCoor.x]) {
-                    Coordinate tmpCoor = new Coordinate(currCoor.x, currCoor.y + 1);
-                    steps[tmpCoor.y][tmpCoor.x] = steps[tmpCoor.y][tmpCoor.x] < steps[currCoor.y][currCoor.x] + 1 ?
-                            steps[tmpCoor.y][tmpCoor.x] :
-                            steps[currCoor.y][currCoor.x] + 1;
-                }
+
             }
             System.out.println("BREAK C:");
             return null;
         }
 
         private boolean attack(Player player, List<Player> possibleTargets) {
-            List<Player> adjacent = possibleTargets.stream().filter(player1 -> player1.isNextTo(player)).collect(Collectors.toList());
+            List<Player> adjacent = possibleTargets.stream().filter(player1 -> player1.coordinate.isNextTo(player)).collect(Collectors.toList());
             if (!adjacent.isEmpty()) {
                 Comparator<Player> comparator = Comparator.comparingInt((Player p) -> p.hp)
-                        .thenComparingInt((Player p) -> p.y)
-                        .thenComparingInt((Player p) -> p.x);
-                Player targetLowestHp = adjacent.stream().sorted(comparator).findFirst().get();
+                        .thenComparingInt((Player p) -> p.coordinate.y)
+                        .thenComparingInt((Player p) -> p.coordinate.x);
+                Player targetLowestHp = adjacent.stream().min(comparator).get();
                 targetLowestHp.hp -= player.attack;
-                //System.out.println("attack! " + targetLowestHp);
+                System.out.println("attack! " + targetLowestHp);
                 if (targetLowestHp.hp <= 0) {
-                    //System.out.println(targetLowestHp + " is dead");
+                    System.out.println(targetLowestHp + " is dead");
                 }
                 return true;
             }
@@ -327,8 +301,11 @@ public class Day15_2 {
                 for (int tmpx = 0; tmpx < x; tmpx++) {
                     final int tx = tmpx;
                     final int ty = tmpy;
-                    if (players.stream().anyMatch(player -> player.x == tx && player.y == ty && player.hp > 0)) {
-                        System.out.print(players.stream().filter(player -> player.x == tx && player.y == ty).findFirst().get().symbol);
+                    if (players.stream().anyMatch(player -> player.coordinate.x == tx && player.coordinate.y == ty && player.hp > 0)) {
+                        System.out.print(players.stream()
+                                .filter(player -> player.coordinate.x == tx && player.coordinate.y == ty)
+                                .findFirst()
+                                .get().symbol);
                     } else {
                         System.out.print(caveParts[tmpy][tmpx].symbol);
                     }
@@ -351,12 +328,11 @@ public class Day15_2 {
     private class Player extends CavePart {
         int hp = 200;
         int attack = 3;
-        int x;
-        int y;
+        Coordinate coordinate;
+        String name;
 
         private Player(int x, int y) {
-            this.x = x;
-            this.y = y;
+            this.coordinate = new Coordinate(x, y);
         }
 
         @Override
@@ -371,32 +347,26 @@ public class Day15_2 {
 
         @Override
         public String toString() {
-            return "[" + y + "," + x + "]: " + symbol + " (" + hp + ")";
+            return coordinate + ": " + name + " (" + hp + ")";
         }
 
-        boolean isNextTo(Player player) {
-            boolean above = this.x == player.x && this.y == player.y - 1;
-            boolean below = this.x == player.x && this.y == player.y + 1;
-            boolean left = this.x == player.x - 1 && this.y == player.y;
-            boolean right = this.x == player.x + 1 && this.y == player.y;
-            return above || below || left || right;
-        }
     }
-
+    static int elfCount = 0;
     private class Elf extends Player {
         private Elf(int x, int y) {
             super(x, y);
             symbol = "E";
-
+            name = symbol + elfCount++;
         }
     }
 
+    static int goblinCount = 0;
     private class Goblin extends Player {
         private Goblin(int x, int y) {
             super(x, y);
             symbol = "G";
+            name = symbol + goblinCount++;
         }
-
     }
 
     private class Wall extends CavePart {
@@ -441,16 +411,26 @@ public class Day15_2 {
         }
 
         boolean isNextTo(Player player) {
-            boolean above = this.x == player.x && this.y == player.y - 1;
-            boolean below = this.x == player.x && this.y == player.y + 1;
-            boolean left = this.x == player.x - 1 && this.y == player.y;
-            boolean right = this.x == player.x + 1 && this.y == player.y;
+            // Math abs + Math avs == 1 ?
+            boolean above = this.x == player.coordinate.x && this.y == player.coordinate.y - 1;
+            boolean below = this.x == player.coordinate.x && this.y == player.coordinate.y + 1;
+            boolean left = this.x == player.coordinate.x - 1 && this.y == player.coordinate.y;
+            boolean right = this.x == player.coordinate.x + 1 && this.y == player.coordinate.y;
             return above || below || left || right;
+        }
+
+        List<Coordinate> getNeighbours() {
+            List<Coordinate> neighbours = new ArrayList<>();
+            neighbours.add(new Coordinate(x, y - 1));
+            neighbours.add(new Coordinate(x, y + 1));
+            neighbours.add(new Coordinate(x - 1, y));
+            neighbours.add(new Coordinate(x + 1, y));
+            return neighbours;
         }
 
         @Override
         public String toString() {
-            return "[" + x + ", " + y + "]";
+            return "[y=" + y + ", x=" + x + "]";
         }
 
         @Override
@@ -469,7 +449,7 @@ public class Day15_2 {
         int steps;
         Player target;
 
-        public CoordinateStepToTarget(Coordinate coordinate, int steps, Player target) {
+        CoordinateStepToTarget(Coordinate coordinate, int steps, Player target) {
             this.coordinate = coordinate;
             this.steps = steps;
             this.target = target;
