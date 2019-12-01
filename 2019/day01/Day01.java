@@ -32,12 +32,7 @@ public class Day01 {
     }
 
     private long calcFuel(long in) {
-        //System.out.println(module);
-        long out = Math.floorDiv(in, 3);
-        //System.out.println("divAndFloor: " + divAndRound);
-        out -= 2;
-        //System.out.println("min2: " + min2);
-        return out;
+        return Math.floorDiv(in, 3) - 2;
     }
 
     private String part2(List<Long> input) {
@@ -47,7 +42,7 @@ public class Day01 {
             long fuel = calcFuel(module);
             totalFuel += fuel;
             long extraFuel = calcFuel(fuel);
-            while (extraFuel > 0){
+            while (extraFuel > 0) {
                 totalFuel += extraFuel;
                 extraFuel = calcFuel(extraFuel);
             }
@@ -56,7 +51,7 @@ public class Day01 {
         return "part2: " + sum;
     }
 
-    private List<Long> init(){
+    private List<Long> init() {
         String path = "input.txt";
         //String path = "input_test.txt";
         if (System.getProperty("user.dir").endsWith("adventofcode")) { // executed from the proj root dir

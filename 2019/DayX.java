@@ -26,7 +26,7 @@ public class DayX {
         return "part2";
     }
 
-    private List<String> init(){
+    private List<String> init() {
         String path = "input.txt";
         //String path = "input_test.txt";
         if (System.getProperty("user.dir").endsWith("adventofcode")) { // executed from the proj root dir
