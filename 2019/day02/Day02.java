@@ -12,7 +12,7 @@ public class Day02 {
         long start = System.currentTimeMillis();
         System.out.println("Part one: " + part1(init())); // 4690667
         long one = System.currentTimeMillis();
-        System.out.println("Part two: " + part2());
+        System.out.println("Part two: " + part2()); // 6255
         long two = System.currentTimeMillis();
         System.out.println("one: " + (one - start) + "ms two: " + (two - one) + "ms");
     }
