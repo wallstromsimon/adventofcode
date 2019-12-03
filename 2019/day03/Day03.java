@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,7 +19,7 @@ public class Day03 {
         long start = System.currentTimeMillis();
         System.out.println("Part one: " + part1(input)); // 651
         long one = System.currentTimeMillis();
-        System.out.println("Part two: " + part2(input));
+        System.out.println("Part two: " + part2(input)); // 7534
         long two = System.currentTimeMillis();
         System.out.println("one: " + (one - start) + "ms two: " + (two - one) + "ms");
     }
@@ -27,9 +28,50 @@ public class Day03 {
         List<List<Line>> allLines = getAllPaths(input);
         List<Line> firsLine = allLines.get(0);
         List<Line> secondLine = allLines.get(1);
-        Point origo = new Point(0, 0);
         List<Point> crossPoints = getCrossPoints(firsLine, secondLine);
+        Point origo = new Point(0, 0);
         return "part1: " + crossPoints.stream().mapToInt(point-> origo.distance(point)).min().getAsInt();
+    }
+
+    private String part2(List<String> input) {
+        List<List<Line>> allLines = getAllPaths(input);
+        List<Line> firsLine = allLines.get(0);
+        List<Line> secondLine = allLines.get(1);
+        List<Point> crossPoints = getCrossPoints(firsLine, secondLine);
+
+        int minCombinedSteps = Integer.MAX_VALUE;
+        for (Point cross : crossPoints) {
+            int combinedSteps = 0;
+
+            // for each line list, walk until the cross
+            for (Line line : firsLine) {
+                if (line.containsHorizontal(cross)) {
+                    combinedSteps += Math.abs(line.a.x - cross.x);
+                    break;
+                } else if (line.containsVertical(cross)) {
+                    combinedSteps += Math.abs(line.a.y - cross.y);
+                    break;
+                } else {
+                    combinedSteps += Math.abs(line.a.x - line.b.x) + Math.abs(line.a.y - line.b.y);
+                }
+            }
+
+            for (Line line : secondLine) {
+                if (line.containsHorizontal(cross)) {
+                    combinedSteps += Math.abs(line.a.x - cross.x);
+                    break;
+                } else if (line.containsVertical(cross)) {
+                    combinedSteps += Math.abs(line.a.y - cross.y);
+                    break;
+                } else {
+                    combinedSteps += Math.abs(line.a.x - line.b.x) + Math.abs(line.a.y - line.b.y);
+                }
+
+            }
+            minCombinedSteps = minCombinedSteps < combinedSteps ? minCombinedSteps : combinedSteps;
+        }
+
+        return "part2: " + minCombinedSteps;
     }
 
     private List<Point> getCrossPoints(List<Line> firsLine, List<Line> secondLine) {
@@ -80,10 +122,6 @@ public class Day03 {
             allLines.add(lines);
         }
         return allLines;
-    }
-
-    private String part2(List<String> input) {
-        return "part2";
     }
 
     private List<String> init() {
@@ -139,6 +177,21 @@ public class Day03 {
 
         private boolean isParallel(Line otherLine) {
             return this.isHorizontal() && otherLine.isHorizontal() || !this.isHorizontal() && !otherLine.isHorizontal();
+        }
+
+        private boolean containsPoint(Point point) {
+            boolean containsVertical = !this.isHorizontal() && this.a.x == point.x && (this.a.y <= point.y && this.b.y >= point.y || this.b.y <= point.y && this.a.y >= point.y);
+            boolean containsHorizontal = this.isHorizontal() && this.a.y == point.y && (this.a.x <= point.x && this.b.x >= point.x || this.b.x <= point.y && this.a.x >= point.x);
+            // break out above to methods?
+            return containsHorizontal || containsVertical;
+        }
+
+        private boolean containsVertical(Point point) {
+            return !this.isHorizontal() && this.a.x == point.x && (this.a.y <= point.y && this.b.y >= point.y || this.b.y <= point.y && this.a.y >= point.y);
+        }
+
+        private boolean containsHorizontal(Point point) {
+            return this.isHorizontal() && this.a.y == point.y && (this.a.x <= point.x && this.b.x >= point.x || this.b.x <= point.y && this.a.x >= point.x);
         }
 
         // Add crossing method
