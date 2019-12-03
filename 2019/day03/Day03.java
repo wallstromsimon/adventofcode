@@ -3,12 +3,12 @@ import java.util.stream.*;
 import java.nio.file.*;
 import java.io.*;
 
-public class Day93 {
+public class Day03 {
     public static void main(String[] args) {
-        Day93 day = new Day93();
+        Day03 day = new Day03();
     }
 
-    public Day93() {
+    public Day03() {
         var input = init();
         long start = System.currentTimeMillis();
         System.out.println("Part one: " + part1(input));
