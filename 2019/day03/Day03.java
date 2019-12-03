@@ -43,35 +43,29 @@ public class Day03 {
         for (Point cross : crossPoints) {
             int combinedSteps = 0;
 
-            // for each line list, walk until the cross
-            for (Line line : firsLine) {
-                if (line.containsHorizontal(cross)) {
-                    combinedSteps += Math.abs(line.a.x - cross.x);
-                    break;
-                } else if (line.containsVertical(cross)) {
-                    combinedSteps += Math.abs(line.a.y - cross.y);
-                    break;
-                } else {
-                    combinedSteps += Math.abs(line.a.x - line.b.x) + Math.abs(line.a.y - line.b.y);
-                }
-            }
+            combinedSteps += getStepsToCross(firsLine, cross);
+            combinedSteps += getStepsToCross(secondLine, cross);
 
-            for (Line line : secondLine) {
-                if (line.containsHorizontal(cross)) {
-                    combinedSteps += Math.abs(line.a.x - cross.x);
-                    break;
-                } else if (line.containsVertical(cross)) {
-                    combinedSteps += Math.abs(line.a.y - cross.y);
-                    break;
-                } else {
-                    combinedSteps += Math.abs(line.a.x - line.b.x) + Math.abs(line.a.y - line.b.y);
-                }
-
-            }
-            minCombinedSteps = minCombinedSteps < combinedSteps ? minCombinedSteps : combinedSteps;
+            minCombinedSteps = Math.min(minCombinedSteps, combinedSteps);
         }
 
         return "part2: " + minCombinedSteps;
+    }
+
+    private int getStepsToCross(List<Line> path, Point cross) {
+        int steps = 0;
+        for (Line line : path) {
+            if (line.containsHorizontal(cross)) {
+                steps += Math.abs(line.a.x - cross.x);
+                break;
+            } else if (line.containsVertical(cross)) {
+                steps += Math.abs(line.a.y - cross.y);
+                break;
+            } else {
+                steps += Math.abs(line.a.x - line.b.x) + Math.abs(line.a.y - line.b.y);
+            }
+        }
+        return steps;
     }
 
     private List<Point> getCrossPoints(List<Line> firsLine, List<Line> secondLine) {
@@ -179,13 +173,6 @@ public class Day03 {
             return this.isHorizontal() && otherLine.isHorizontal() || !this.isHorizontal() && !otherLine.isHorizontal();
         }
 
-        private boolean containsPoint(Point point) {
-            boolean containsVertical = !this.isHorizontal() && this.a.x == point.x && (this.a.y <= point.y && this.b.y >= point.y || this.b.y <= point.y && this.a.y >= point.y);
-            boolean containsHorizontal = this.isHorizontal() && this.a.y == point.y && (this.a.x <= point.x && this.b.x >= point.x || this.b.x <= point.y && this.a.x >= point.x);
-            // break out above to methods?
-            return containsHorizontal || containsVertical;
-        }
-
         private boolean containsVertical(Point point) {
             return !this.isHorizontal() && this.a.x == point.x && (this.a.y <= point.y && this.b.y >= point.y || this.b.y <= point.y && this.a.y >= point.y);
         }
@@ -194,7 +181,6 @@ public class Day03 {
             return this.isHorizontal() && this.a.y == point.y && (this.a.x <= point.x && this.b.x >= point.x || this.b.x <= point.y && this.a.x >= point.x);
         }
 
-        // Add crossing method
         private Point cross(Line otherLine) {
             if (this.isParallel(otherLine)) {
                 return null;
