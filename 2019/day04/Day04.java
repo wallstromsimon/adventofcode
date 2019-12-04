@@ -51,24 +51,24 @@ public class Day04 {
         List<String> splittedNumber = Arrays.asList(number.split(""));
         //System.out.println(splittedNumber);
 
-        boolean neverDecending = true;
-        boolean twoAdjencentTheSame = false;
+        boolean neverDescending = true;
+        boolean twoAdjacentTheSame = false;
         int prevDigit = Integer.MIN_VALUE;
 
         for (String digit : splittedNumber) {
             int currentDigit = Integer.parseInt(digit);
             if (currentDigit < prevDigit) {
-                neverDecending = false;
+                neverDescending = false;
             }
 
             if (currentDigit == prevDigit) {
-                twoAdjencentTheSame = true;
+                twoAdjacentTheSame = true;
             }
 
             prevDigit = currentDigit;
         }
 
-        return neverDecending && twoAdjencentTheSame;
+        return neverDescending && twoAdjacentTheSame;
     }
 
     private String part2(int min, int max) {
@@ -85,14 +85,14 @@ public class Day04 {
         String number = Integer.toString(i);
         List<String> splittedNumber = Arrays.asList(number.split(""));
 
-        boolean neverDecending = true;
+        boolean neverDescending = true;
         int prevDigit = Integer.MIN_VALUE;
-        boolean twoAdjencentTheSame = false;
+        boolean twoAdjacentTheSame = false;
         for (int j = 0; j < splittedNumber.size(); j++) {
             String current = splittedNumber.get(j);
             int currentDigit = Integer.parseInt(current);
             if (currentDigit < prevDigit) {
-                neverDecending = false;
+                neverDescending = false;
             }
             prevDigit = currentDigit;
 
@@ -118,10 +118,10 @@ public class Day04 {
             }
 
             if (sameCount == 2) {
-                twoAdjencentTheSame = true;
+                twoAdjacentTheSame = true;
             }
         }
 
-        return neverDecending && twoAdjencentTheSame;
+        return neverDescending && twoAdjacentTheSame;
     }
 }
