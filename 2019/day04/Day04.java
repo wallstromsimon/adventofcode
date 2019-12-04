@@ -9,35 +9,22 @@ public class Day04 {
     }
 
     public Day04() {
-        var input = init();
+        long min = 307237;
+        long max = 769058;
+        // 307237-769058
         long start = System.currentTimeMillis();
-        System.out.println("Part one: " + part1(input));
+        System.out.println("Part one: " + part1(min, max));
         long one = System.currentTimeMillis();
-        System.out.println("Part two: " + part2(input));
+        System.out.println("Part two: " + part2(min, max));
         long two = System.currentTimeMillis();
         System.out.println("one: " + (one - start) + "ms two: " + (two - one) + "ms");
     }
 
-    private String part1(List<String> input) {
+    private String part1(long min, long max) {
         return "part1";
     }
 
-    private String part2(List<String> input) {
+    private String part2(long min, long max) {
         return "part2";
-    }
-
-    private List<String> init() {
-        String path = "input.txt";
-        //String path = "input_test.txt";
-        if (System.getProperty("user.dir").endsWith("adventofcode")) { // executed from the proj root dir
-            path = "tmp/production/adventofcode/" + this.getClass().getSimpleName().toLowerCase() + "/" + path;
-        }
-
-        try (Stream<String> stream = Files.lines(Paths.get(path))) {
-            stream.forEach(System.out::println);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Collections.emptyList();
     }
 }
