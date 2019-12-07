@@ -4,6 +4,7 @@
 #intellij compiled stuff
 tmp/*
 .idea/*
+out/*
 
 # Java class files 
 *.class
