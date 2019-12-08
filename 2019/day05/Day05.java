@@ -40,17 +40,20 @@ public class Day05 {
         long start = System.currentTimeMillis();
         System.out.println("Part one: " + part1(integers)); // 9006673
         long one = System.currentTimeMillis();
-        System.out.println("Part two: " + part2(integers));
+
+        // Clean input
+        integers = Arrays.asList(input.split(",")).stream().mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
+        System.out.println("Part two: " + part2(integers)); // 3629692
         long two = System.currentTimeMillis();
         System.out.println("one: " + (one - start) + "ms two: " + (two - one) + "ms");
     }
 
     private String part1(List<Integer> input) {
-        runIntProg(input);
+        //runIntProg(input, 1);
         return "part1";
     }
 
-    private void runIntProg(List<Integer> input) {
+    private void runIntProg(List<Integer> input, int op3input) {
         int indexDiff = 0;
         for (int i = 0; i < input.size(); i += indexDiff) {
             System.out.println(input.subList(i, input.size()));
@@ -97,9 +100,9 @@ public class Day05 {
             } else if (op == 3) {
                 // Opcode 3 takes a single integer as input and saves it to the position given by its only parameter.
                 // For example, the instruction 3,50 would take an input value and store it at address 50.
-                System.out.println("Only one input, giving it 1");
+                System.out.println("Only one input, giving it: " + op3input);
                 int address = input.get(i + 1);
-                input.set(address, 1);
+                input.set(address, op3input);
                 // do something!
                 indexDiff = 2;
             } else if (op == 4) {
@@ -108,12 +111,77 @@ public class Day05 {
                 int address = input.get(i + 1);
                 int value = opMode1 == 0 ? input.get(address) : address;
                 // do something!
-                System.out.println("OUT: " + value);
+                System.out.println("OUT: " + value + " from pos " + address);
                 if (value != 0) {
                     System.out.println("Breaking for non 0 output, are we done or is something wrong?");
                     //break;
                 }
                 indexDiff = 2;
+            } else if (op == 5) {
+                // Opcode 5 is jump-if-true:
+                // if the first parameter is non-zero, it sets the instruction pointer to the value from the second parameter.
+                // Otherwise, it does nothing.
+                int first = input.get(i + 1);
+                int second = input.get(i + 2);
+
+                first = opMode1 == 0 ? input.get(first) : first;
+                second = opMode2 == 0 ? input.get(second) : second;
+
+                if (first != 0) {
+                    i = second;
+                    indexDiff = 0;
+                } else {
+                    // only ic if we don't change!
+                    indexDiff = 3;
+                }
+            } else if (op == 6) {
+                // Opcode 6 is jump-if-false:
+                // if the first parameter is zero, it sets the instruction pointer to the value from the second parameter.
+                // Otherwise, it does nothing.
+                int first = input.get(i + 1);
+                int second = input.get(i + 2);
+
+                first = opMode1 == 0 ? input.get(first) : first;
+                second = opMode2 == 0 ? input.get(second) : second;
+
+                if (first == 0) {
+                    i = second;
+                    indexDiff = 0;
+                } else {
+                    // only ic if we don't change!
+                    indexDiff = 3;
+                }
+            } else if (op == 7) {
+                // Opcode 7 is less than:
+                // if the first parameter is less than the second parameter, it stores 1 in the position given by the third parameter.
+                // Otherwise, it stores 0.
+                int first = input.get(i + 1);
+                int second = input.get(i + 2);
+                int third = input.get(i + 3);
+
+                first = opMode1 == 0 ? input.get(first) : first;
+                second = opMode2 == 0 ? input.get(second) : second;
+
+                int output = first < second ? 1 : 0;
+                input.set(third, output);
+
+                indexDiff = 4;
+            } else if (op == 8) {
+                // Opcode 8 is equals:
+                // if the first parameter is equal to the second parameter, it stores 1 in the position given by the third parameter.
+                // Otherwise, it stores 0.
+                int first = input.get(i + 1);
+                int second = input.get(i + 2);
+                int third = input.get(i + 3);
+
+                first = opMode1 == 0 ? input.get(first) : first;
+                second = opMode2 == 0 ? input.get(second) : second;
+
+                int output = first == second ? 1 : 0;
+                input.set(third, output);
+                System.out.println("storing " + output + " on addr " + third);
+
+                indexDiff = 4;
             } else if (op == 99) {
                 //System.out.println("exit program i = " + i);
                 break;
@@ -124,6 +192,7 @@ public class Day05 {
     }
 
     private String part2(List<Integer> input) {
+        runIntProg(input, 5);
         return "part2";
     }
 
