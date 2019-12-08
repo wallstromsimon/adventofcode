@@ -1,11 +1,7 @@
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Day05 {
     public static void main(String[] args) {
@@ -40,11 +36,9 @@ public class Day05 {
                 "677,224,102,2,223,223,1006,224,629,101,1,223,223,1107,226,226,224,102,2,223,223,1005,224,644,1001," +
                 "223,1,223,1108,677,677,224,1002,223,2,223,1005,224,659,101,1,223,223,107,677,677,224,1002,223,2,223," +
                 "1006,224,674,1001,223,1,223,4,223,99,226";
-        // String input = "1002,4,3,4,33"; //
-        System.out.println(input);
         List<Integer> integers = Arrays.asList(input.split(",")).stream().mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
         long start = System.currentTimeMillis();
-        System.out.println("Part one: " + part1(integers));
+        System.out.println("Part one: " + part1(integers)); // 9006673
         long one = System.currentTimeMillis();
         System.out.println("Part two: " + part2(integers));
         long two = System.currentTimeMillis();
@@ -57,25 +51,72 @@ public class Day05 {
     }
 
     private void runIntProg(List<Integer> input) {
-        for (int i = 0; i < input.size(); i += 4) {
-            int op = input.get(i);
-            if (op == 99) {
-                //System.out.println("exit program i = " + i);
-                break;
+        int indexDiff = 0;
+        for (int i = 0; i < input.size(); i += indexDiff) {
+            System.out.println(input.subList(i, input.size()));
+            int instruction = input.get(i);
+            System.out.println("Processing instruction: " + instruction);
+            List<Integer> instMode = Arrays.stream(Integer.toString(instruction).split(""))
+                    //.filter(s -> !"-".equals(s)) // should not happen for a real op code?
+                    .mapToInt(Integer::parseInt)
+                    .boxed()
+                    //.sorted(Collections.reverseOrder())
+                    .collect(Collectors.toList());
+            Collections.reverse(instMode);
+            System.out.println("instList: " + instMode);
+            int op = instMode.get(0);
+            op = instMode.size() > 1 ? instMode.get(1) * 10 + op : op;
+            System.out.println("OP: " + op);
+            int opMode1 = instMode.size() > 2 ? instMode.get(2) : 0;
+            int opMode2 = instMode.size() > 3 ? instMode.get(3) : 0;
+            int opMode3 = instMode.size() > 4 ? instMode.get(4) : 0;
+            if (opMode3 > 0) {
+                System.out.println("whatsup with opmode3: " + opMode3);
             }
-            int first = input.get(i + 1);
-            int second = input.get(i + 2);
-            int to = input.get(i + 3);
 
             if (op == 1) {
-                input.set(to, input.get(first) + input.get(second));
+                int first = input.get(i + 1);
+                int second = input.get(i + 2);
+                int to = input.get(i + 3);
+
+                first = opMode1 == 0 ? input.get(first) : first;
+                second = opMode2 == 0 ? input.get(second) : second;
+
+                input.set(to, first + second);
+                indexDiff = 4;
             } else if (op == 2) {
-                input.set(to, input.get(first) * input.get(second));
+                int first = input.get(i + 1);
+                int second = input.get(i + 2);
+                int to = input.get(i + 3);
+
+                first = opMode1 == 0 ? input.get(first) : first;
+                second = opMode2 == 0 ? input.get(second) : second;
+
+                input.set(to, first * second);
+                indexDiff = 4;
             } else if (op == 3) {
                 // Opcode 3 takes a single integer as input and saves it to the position given by its only parameter.
                 // For example, the instruction 3,50 would take an input value and store it at address 50.
-                //input.set()
-
+                System.out.println("Only one input, giving it 1");
+                int address = input.get(i + 1);
+                input.set(address, 1);
+                // do something!
+                indexDiff = 2;
+            } else if (op == 4) {
+                // Opcode 4 outputs the value of its only parameter.
+                // For example, the instruction 4,50 would output the value at address 50.
+                int address = input.get(i + 1);
+                int value = opMode1 == 0 ? input.get(address) : address;
+                // do something!
+                System.out.println("OUT: " + value);
+                if (value != 0) {
+                    System.out.println("Breaking for non 0 output, are we done or is something wrong?");
+                    //break;
+                }
+                indexDiff = 2;
+            } else if (op == 99) {
+                //System.out.println("exit program i = " + i);
+                break;
             } else {
                 System.out.println("Unknown op = " + op);
             }
