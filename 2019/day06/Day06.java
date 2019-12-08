@@ -9,41 +9,18 @@ public class Day06 {
     }
 
     public Day06() {
-        var input = init();
+        Map<String, Planet> allPlanets = init();
         long start = System.currentTimeMillis();
-        System.out.println("Part one: " + part1(input)); // 110190
+        System.out.println("Part one: " + part1(allPlanets)); // 110190
         long one = System.currentTimeMillis();
-        System.out.println("Part two: " + part2(input));
+        System.out.println("Part two: " + part2(allPlanets));
         long two = System.currentTimeMillis();
         System.out.println("one: " + (one - start) + "ms two: " + (two - one) + "ms");
     }
 
-    private String part1(List<String> input) {
-        Map<String, Planet> allPlanets = new HashMap<>();
-        for (String mapRow : input) {
-            String planetString1 = mapRow.substring(0, mapRow.indexOf(')'));
-            String planetString2 = mapRow.substring(mapRow.indexOf(')') + 1);
-            //System.out.println(mapRow + " -> " + planetString1 + " ) " + planetString2);
-
-            if (!allPlanets.containsKey(planetString1)) {
-                allPlanets.put(planetString1, new Planet(planetString1));
-            }
-
-            if (!allPlanets.containsKey(planetString2)) {
-                allPlanets.put(planetString2, new Planet(planetString2));
-            }
-
-            Planet planet1 = allPlanets.get(planetString1);
-            Planet planet2 = allPlanets.get(planetString2);
-
-            planet1.orbitors.add(planet2);
-            planet2.orbits = planet1;
-        }
-
-        String rootName = "COM";
-        Planet rootPlanet = allPlanets.get(rootName);
-
-
+    private String part1(Map<String, Planet> allPlanets) {
+        String COM = "COM";
+        Planet rootPlanet = allPlanets.get(COM);
         return "part1: " + calcNbrOfOrbits(rootPlanet);
     }
 
@@ -56,11 +33,11 @@ public class Day06 {
         return count;
     }
 
-    private String part2(List<String> input) {
+    private String part2(Map<String, Planet> allPlanets) {
         return "part2";
     }
 
-    private List<String> init() {
+    private Map<String, Planet> init() {
         String path = "input.txt";
         //String path = "input_test.txt";
         if (System.getProperty("user.dir").endsWith("adventofcode")) { // executed from the proj root dir
@@ -68,11 +45,32 @@ public class Day06 {
         }
 
         try (Stream<String> stream = Files.lines(Paths.get(path))) {
-            return stream.collect(Collectors.toList()); //forEach(System.out::println);
+            var input = stream.collect(Collectors.toList()); //forEach(System.out::println);
+            Map<String, Planet> allPlanets = new HashMap<>();
+            for (String mapRow : input) {
+                String planetString1 = mapRow.substring(0, mapRow.indexOf(')'));
+                String planetString2 = mapRow.substring(mapRow.indexOf(')') + 1);
+                //System.out.println(mapRow + " -> " + planetString1 + " ) " + planetString2);
+
+                if (!allPlanets.containsKey(planetString1)) {
+                    allPlanets.put(planetString1, new Planet(planetString1));
+                }
+
+                if (!allPlanets.containsKey(planetString2)) {
+                    allPlanets.put(planetString2, new Planet(planetString2));
+                }
+
+                Planet planet1 = allPlanets.get(planetString1);
+                Planet planet2 = allPlanets.get(planetString2);
+
+                planet1.orbitors.add(planet2);
+                planet2.orbits = planet1;
+            }
+            return allPlanets;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Collections.emptyList();
+        return Collections.emptyMap();
     }
 
     private class Planet {
