@@ -34,12 +34,39 @@ public class Day06 {
     }
 
     private String part2(Map<String, Planet> allPlanets) {
+        Planet you = allPlanets.get("YOU");
+        Planet san = allPlanets.get("SAN");
+
+        // Assume that you and san are leafs
+        // walk from you to orbiting planet and se if san is an orbitor
+        // Otherwise do the same for every orbitor except the previous one.
+        // count
+
+        calcDistance(you, san);
+
         return "part2";
     }
 
+    private int calcDistance(Planet a, Planet b) {
+        System.out.println("* " + a + " -> " + b);
+        Planet orbits = a.orbits;
+        for (Planet orbitor : orbits.orbitors) {
+            System.out.println("- " + orbitor + " -> " + b);
+            if (orbitor.name.equals(a.name)) {
+                continue;
+            } else if (orbitor.name.equals(b.name)) {
+                System.out.println("done");
+            } else {
+                calcDistance(orbitor, b);
+            }
+        }
+        return 0;
+    }
+
     private Map<String, Planet> init() {
-        String path = "input.txt";
+        //String path = "input.txt";
         //String path = "input_test.txt";
+        String path = "input_test2.txt";
         if (System.getProperty("user.dir").endsWith("adventofcode")) { // executed from the proj root dir
             path = "tmp/production/adventofcode/" + this.getClass().getSimpleName().toLowerCase() + "/" + path;
         }
@@ -82,6 +109,11 @@ public class Day06 {
         Planet(String name) {
             this.name = name;
             orbitors = new ArrayList<>();
+        }
+
+        @Override
+        public String toString() {
+            return name;
         }
     }
 }
